@@ -27,6 +27,8 @@ class TokenTree:
         self.root.total_node_count += 1
         self.root.max_depth = max(self.root.max_depth, child.depth)
 
+        print(f"{self.token} -> {token}[{np.exp(logprob):.2f}]")
+
         return child
     
     def __lt__(self, o):

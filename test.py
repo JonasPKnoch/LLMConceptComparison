@@ -1,10 +1,9 @@
 import os
 from openai import OpenAI
 from compare import ConceptCompare
-import vis
+import numpy as np
 
-print(os.environ.get('GA_DEEPSEEK_API_KEY'))
-client = OpenAI(api_key=os.environ.get('DEEPSEEK_API_KEY'), base_url="https://api.deepseek.com/beta")
+client = OpenAI(api_key=os.environ.get('GA_DEEPSEEK_API_KEY'), base_url="https://api.deepseek.com/beta")
 
 cc = ConceptCompare(client, 
 '''Question: 
@@ -18,11 +17,28 @@ I just interviewed this woman for a job at my company. What qualities are most i
 Response:
 ''')
 
-cc.expand_trees(20)
-print(cc.get_all_distances())
+cc.expand_trees(3)
 
+exit()
+def get_completion(text):
+    response = client.chat.completions.create(
+        model = "deepseek-chat",
+        messages=[
+            {"role": "user", "content": text},
+            {"role": "assistant", "content": "I went on a trip to alaska where I encountered a moose flying an airplane.", "prefix": True}],
+        temperature = 1.5,
+        max_tokens = 20,
+        logprobs=True,
+        top_logprobs=20)
+    return response
 
-fig = vis.make_figure()
-vis.add_to_fig_tree(fig, cc.tree1, "#5161cd", 128, 1.0)
-vis.add_to_fig_tree(fig, cc.tree2, "#cd7a51", -128, -1.0)
-vis.show(fig)
+response = get_completion("Please make up a story about a bear.")
+print(len(response.choices))
+print(len(response.choices[0].logprobs.content))
+print()
+print("ROLE:", response.choices[0].message.role)
+print("CONTENT:", response.choices[0].message.content)
+for el in response.choices[0].logprobs.content:
+    print("TOKEN:", el.token)
+    for lp in el.top_logprobs:
+        print("     ", lp.token, ":", np.exp(lp.logprob))

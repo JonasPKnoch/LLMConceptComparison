@@ -3,9 +3,9 @@ import distributions
 import os
 
 class ConceptCompare:
-    def __init__(self, client, text1: str, text2: str, temperature=1.5, noisy=False):
-        self.tree_gen1 = TokenTreeGenerator(client, prompt=text1, temperature=temperature)
-        self.tree_gen2 = TokenTreeGenerator(client, prompt=text2, temperature=temperature)
+    def __init__(self, client, text1: str, text2: str, temperature=1.5, max_tokens=15, noisy=False):
+        self.tree_gen1 = TokenTreeGenerator(client, prompt=text1, temperature=temperature, max_tokens=max_tokens)
+        self.tree_gen2 = TokenTreeGenerator(client, prompt=text2, temperature=temperature, max_tokens=max_tokens)
         self.tree1 = self.tree_gen1.root
         self.tree2 = self.tree_gen2.root
         self.noisy = noisy
@@ -13,8 +13,8 @@ class ConceptCompare:
     def expand_trees(self, iter):
         for i in range(iter):
             self.tree_gen1.expand_best_node()
-            self.tree_gen2.expand_best_node()
-            print(f"Expanded trees {i+1}/{iter}")
+            print("---------------------")
+            #self.tree_gen2.expand_best_node()
     
     def get_all_distances(self):
         max_depth = max(self.tree1.max_depth, self.tree2.max_depth)
